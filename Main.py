@@ -1,88 +1,94 @@
 import pygame
 import sys
-from Button import Button
 from ScoreManager import ScoreManager
 from Scoreboard import ScoreboardScreen
 from AudioManager import AudioManager 
+from DifficultyMenu import DifficultyMenu
+from MainMenu import MainMenu
 from Settings import *
 
-class MenuManager:
-    """Main controller for UI states."""
+class MainLoop:
+    """Le contrôleur principal qui fait tourner le jeu et gère les écrans."""
+    
     def __init__(self):
         pygame.init()
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         pygame.display.set_caption("Minesweeper 3D")
         self.clock = pygame.time.Clock()
+        # --- États et Données ---
         self.state = "MAIN" 
-        # --- Systems ---
+        self.current_config = None # Contiendra la difficulté choisie (EASY, etc.)
+        # --- Systèmes (Outils) ---
         self.score_manager = ScoreManager() 
-        # ==========================================
-        # AUDIO : INITIALISATION
-        # ==========================================
         self.audio = AudioManager() 
-        # COMMENTAIRE : Lance la musique du menu ici.
-        # Exemple : self.audio.start_music("assets/musique_menu.mp3")
-        # ==========================================
-        # --- Screens ---
+        # --- Écrans (Interfaces) ---
+        self.main_menu = MainMenu(self)
         self.score_screen = ScoreboardScreen(self)
-        # --- Main Menu buttons ---
-        self.main_buttons = [
-            Button(300, 220, 200, 60, "PLAY", lambda: self.set_state("GAME")), 
-            Button(300, 300, 200, 60, "SCORES", lambda: self.set_state("SCORES")),
-            Button(300, 380, 200, 60, "EXIT", sys.exit)
-        ]
+        self.difficulty_screen = DifficultyMenu(self)
 
+    # --- Fonctions Utilitaires ---
     def set_state(self, new_state):
+        """Change l'écran actif."""
         self.state = new_state
-        # ==========================================
-        # AUDIO : CHANGEMENT D'ÉTAT
-        # ==========================================
-        # Tu peux vérifier l'état ici pour changer de musique.
-        # if new_state == "GAME":
-        #     self.audio.start_music("assets/musique_jeu.mp3")
-        # ==========================================
 
-    def draw_background(self):
-        self.screen.fill(COLOR_BG)
+    def quit_game(self):
+        """Ferme proprement le programme."""
+        pygame.quit()
+        sys.exit()
 
     def draw_header(self, surface, text):
+        """Affiche un titre stylisé en haut de l'écran."""
         font = pygame.font.SysFont("Impact", 60)
         surf = font.render(text, True, COLOR_ACCENT)
         surface.blit(surf, (SCREEN_WIDTH//2 - surf.get_width()//2, 50))
 
+    # --- Cœur du programme (Logic & Rendering) ---
+    def update(self, mouse_pos):
+        """Met à jour la logique des boutons (survol)."""
+        if self.state == "MAIN":
+            self.main_menu.update(mouse_pos)
+        elif self.state == "DIFFICULTY":
+            self.difficulty_screen.update(mouse_pos)
+        elif self.state == "SCORES":
+            self.score_screen.btn_back.update(mouse_pos)
+
+    def draw(self):
+        """Dessine l'interface selon l'état actuel."""
+        self.screen.fill(COLOR_BG) # Fond de base
+        if self.state == "MAIN":
+            self.main_menu.draw(self.screen)
+        elif self.state == "DIFFICULTY":
+            self.difficulty_screen.draw(self.screen)
+        elif self.state == "SCORES":
+            self.score_screen.draw(self.screen)
+        elif self.state == "GAME":
+            self.draw_header(self.screen, "IN GAME...")
+        pygame.display.flip() # Rafraîchissement visuel
+
     def run(self):
+        """Boucle infinie du jeu."""
         while True:
             mouse_pos = pygame.mouse.get_pos()
-            events = pygame.event.get()
-            for event in events:
+            # 1. Gestion des événements (Clavier / Souris)
+            for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    pygame.quit(); sys.exit()
+                    self.quit_game()
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    # ==========================================
-                    # AUDIO : BRUITAGE CLIC
-                    # ==========================================
-                    # Se déclenche à chaque clic de souris dans le menu.
                     self.audio.play_sfx("click") 
-                    # ==========================================
-                    if self.state == "MAIN":
-                        for b in self.main_buttons: b.handle_click()
-                    elif self.state == "SCORES":
+                # Délégation des clics aux écrans
+                if self.state == "MAIN":
+                    self.main_menu.handle_events(event)
+                elif self.state == "DIFFICULTY":
+                    self.difficulty_screen.handle_events(event)
+                elif self.state == "SCORES":
+                    if event.type == pygame.MOUSEBUTTONDOWN:
                         self.score_screen.btn_back.handle_click()
-            self.draw_background()
-            if self.state == "MAIN":
-                self.draw_header(self.screen, "MINESWEEPER 3D")
-                for b in self.main_buttons:
-                    b.update(mouse_pos)
-                    b.draw(self.screen)
-            elif self.state == "SCORES":
-                self.score_screen.btn_back.update(mouse_pos)
-                self.score_screen.draw(self.screen)
-            elif self.state == "GAME":
-                self.draw_header(self.screen, "GAME STARTING...")
-
-            pygame.display.flip()
+            # 2. Mise à jour de la logique
+            self.update(mouse_pos)
+            # 3. Dessin
+            self.draw()
             self.clock.tick(FPS)
 
 if __name__ == "__main__":
-    app = MenuManager()
+    app = MainLoop()
     app.run()
