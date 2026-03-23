@@ -15,24 +15,21 @@ class ScoreboardScreen:
         self.btn_back = Button(300, 500, 200, 50, "BACK", lambda: self.manager.set_state("MAIN"))
 
     def draw(self, surface):
-        # 1. On laisse le MenuManager dessiner le fond animé (particules)
-        self.manager.draw_background() 
-        # 2. Title
-        font_title = pygame.font.SysFont("Impact", 50)
-        title_surf = font_title.render("HALL OF FAME", True, COLOR_ACCENT)
-        surface.blit(title_surf, (SCREEN_WIDTH//2 - title_surf.get_width()//2, 50))
-        # 3. List display
-        font_data = pygame.font.SysFont("Courier", 25)
-        # IMPORTANT: Get scores from the manager's score_manager
+        self.manager.draw_background()
+        self.manager.draw_header(surface, "BEST TIMES")
+        
+        font_data = pygame.font.SysFont("Courier", 30)
         scores_to_display = self.manager.score_manager.scores
+        
         for i, entry in enumerate(scores_to_display):
-            # Access data using dictionary keys
-            mode = entry["mode"]
             name = entry["name"]
             time = entry["time"]
-            # Formatting the string for a clean table look
-            display_text = f"{mode:<12} | {name:<10} | {time}"
+            
+            # On affiche juste Rang | Nom | Temps
+            display_text = f"#{i+1}  {name:<10}  {time}"
+            
             surf = font_data.render(display_text, True, COLOR_TEXT)
-            surface.blit(surf, (150, 180 + i * 40))
-        # 4. Draw the back button
+            # On centre un peu plus l'affichage
+            surface.blit(surf, (SCREEN_WIDTH//2 - 150, 180 + i * 45))
+        
         self.btn_back.draw(surface)
