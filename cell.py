@@ -64,5 +64,5 @@ class Cell:
             pygame.draw.line(surface, C_BORDER_DK, rect.bottomleft, rect.bottomright, 2)
             pygame.draw.line(surface, C_BORDER_DK, rect.topright, rect.bottomright, 2)
             if self.flagged:
-                txt = font_icon.render("F", True, C_FLAG)
+                txt = font_icon.render("🚩", True, C_FLAG)
                 surface.blit(txt, txt.get_rect(center=rect.center))
