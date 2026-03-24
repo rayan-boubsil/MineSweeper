@@ -14,21 +14,29 @@ class MainLoop:
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         pygame.display.set_caption("Minesweeper 3D")
         self.clock = pygame.time.Clock()
-        # --- États et Données ---
+        # 1. --- États et Données ---
         self.state = "MAIN" 
-        self.current_config = None # Contiendra la difficulté choisie (EASY, etc.)
-        # --- Systèmes (Outils) ---
-        self.score_manager = ScoreManager() 
-        self.audio = AudioManager() 
-        # --- Écrans (Interfaces) ---
-        self.main_menu = MainMenu(self)
-        self.score_screen = ScoreboardScreen(self)
-        self.difficulty_screen = DifficultyMenu(self)
+        self.current_config = None 
+        # 2. --- Animation du Titre (À METTRE ICI !) ---
+        self.intro_done = False # <--- On l'ajoute bien ici
+        self.title_index = 0
+        self.last_title_update = pygame.time.get_ticks()
+        self.type_speed = 100  
+        # 3. --- Dictionnaire de navigation ---
         self.state_names = {
             "MAIN": "MENU PRINCIPAL",
             "DIFFICULTY": "CHOIX DE DIFFICULTÉ",
             "SCORES": "MEILLEURS SCORES"
         }
+        # 4. --- Systèmes (Outils) ---
+        self.score_manager = ScoreManager() 
+        self.audio = AudioManager() 
+        # 5. --- Écrans (Interfaces - EN DERNIER) ---
+        # Maintenant qu'intro_done existe, on peut créer les menus sans risque
+        self.main_menu = MainMenu(self)
+        self.score_screen = ScoreboardScreen(self)
+        self.difficulty_screen = DifficultyMenu(self)
+
     # --- Fonctions Utilitaires ---
     def set_state(self, new_state):
         """Change l'écran actif."""
@@ -40,17 +48,56 @@ class MainLoop:
         sys.exit()
 
     def draw_header(self, surface, text):
-        """Affiche le titre de l'écran avec les réglages centralisés."""
+        now = pygame.time.get_ticks()
+        # --- ÉTAPE 1 : ANIMATION D'ÉCRITURE (Intro) ---
+        if not self.intro_done:
+            if self.title_index < len(text):
+                if now - self.last_title_update > self.type_speed:
+                    self.title_index += 1
+                    self.last_title_update = now
+            else:
+                self.intro_done = True
+        else:
+            self.title_index = len(text)
+        # --- ÉTAPE 2 : LOGIQUE DU "SCANNER" (Toutes les 3 secondes) ---
+        # On calcule quelle lettre doit briller
+        # 3000ms = cycle de 3 secondes
+        cycle_time = 3000 
+        progress = now % cycle_time 
+        # On fait parcourir l'index de 0 à la fin du texte pendant la première seconde
+        # Les 2 secondes restantes, rien ne brille (pause)
+        glow_index = -1
+        if progress < 1000: # La vague dure 1 seconde
+            glow_index = int((progress / 1000) * len(text))
+        # --- ÉTAPE 3 : DESSIN ---
         try:
-            # On utilise la taille définie dans Settings
             font = pygame.font.Font(FONT_CUSTOM, TITLE_FONT_SIZE)
         except:
             font = pygame.font.SysFont("Impact", TITLE_FONT_SIZE)
-        surf = font.render(text, True, COLOR_ACCENT)
-        # Calcul de la position avec les constantes
-        pos_x = (SCREEN_WIDTH // 2) - (surf.get_width() // 2) + TITLE_X_OFFSET
-        pos_y = TITLE_Y_POS
-        surface.blit(surf, (pos_x, pos_y))
+        pos_x, pos_y = 75, TITLE_Y_POS
+        # 1. Dessiner tout le texte affiché (Couleur de base)
+        text_to_show = text[:self.title_index]
+        surf_base = font.render(text_to_show, True, COLOR_ACCENT)
+        surface.blit(surf_base, (pos_x, pos_y))
+        # 2. Dessiner la lettre qui "brille" (seulement si l'intro est finie)
+        if self.intro_done and 0 <= glow_index < len(text):
+            char = text[glow_index]
+            # Couleur très vive (Blanc ou Vert très clair)
+            surf_glow = font.render(char, True, (200, 255, 200)) 
+            # Calculer la position X de cette lettre précise
+            # On mesure la largeur de ce qui précède la lettre
+            offset_x = font.size(text[:glow_index])[0]
+            surface.blit(surf_glow, (pos_x + offset_x, pos_y))
+
+    def set_state(self, new_state):
+        # 1. On vérifie si on revient du jeu vers le menu
+        # Si l'état actuel est "GAME" et qu'on passe à "MAIN"
+        if self.state == "GAME" and new_state == "MAIN":
+            self.intro_done = False   # On autorise à nouveau l'animation
+            self.title_index = 0      # On repart de zéro lettre
+            self.last_title_update = pygame.time.get_ticks()
+        # 2. On change l'état
+        self.state = new_state
 
     # --- Cœur du programme (Logic & Rendering) ---
     def update(self, mouse_pos):
