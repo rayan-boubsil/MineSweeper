@@ -9,10 +9,10 @@ class DifficultyMenu:
         self.manager = manager
         # Création des boutons (Positions X, Y, Largeur, Hauteur)
         self.buttons = [
-            Button(300, 200, 200, 60, "EASY", lambda: self.start_with("EASY")),
-            Button(300, 280, 200, 60, "MEDIUM", lambda: self.start_with("MEDIUM")),
-            Button(300, 360, 200, 60, "HARD", lambda: self.start_with("HARD")),
-            Button(300, 460, 200, 50, "BACK", lambda: self.manager.set_state("MAIN"))
+            Button(100, 220, 250, 60, "EASY", lambda: self.start_with("EASY")),
+            Button(100, 300, 250, 60, "MEDIUM", lambda: self.start_with("MEDIUM")),
+            Button(100, 380, 250, 60, "HARD", lambda: self.start_with("HARD")),
+            Button(100, 480, 250, 50, "BACK", lambda: self.manager.set_state("MAIN"))
         ]
 
     def start_with(self, level):
@@ -40,6 +40,7 @@ class DifficultyMenu:
 
     def draw(self, surface):
         """Dessine le titre et les boutons sur l'écran."""
-        self.manager.draw_header(surface, "SELECT DIFFICULTY")
+        self.manager.draw_header(surface, "MINESWEEPER 3D")
+        pygame.draw.line(surface, COLOR_ACCENT, (70, 180), (70, 480), 2)
         for b in self.buttons:
             b.draw(surface)

@@ -8,10 +8,15 @@ class Button:
         # Position et taille du bouton
         self.rect = pygame.Rect(x, y, w, h)
         self.text = text
-        self.callback = callback # La fonction à exécuter lors du clic
-        
-        # Style du texte
-        self.font = pygame.font.SysFont("Verdana", 24, bold=True)
+        self.callback = callback 
+        # --- CHARGEMENT DE LA POLICE ---
+        try:
+            # ATTENTION : On retire 'bold=True' ici, car .Font() ne le gère pas
+            self.font = pygame.font.Font(FONT_CUSTOM, 28) 
+        except:
+            # Ici SysFont accepte bold=True
+            self.font = pygame.font.SysFont("Verdana", 22, bold=True)
+            print(f"Erreur : Impossible de charger {FONT_CUSTOM}")
         self.hovered = False
 
     def update(self, mouse_pos):
@@ -19,18 +24,17 @@ class Button:
         self.hovered = self.rect.collidepoint(mouse_pos)
 
     def draw(self, surface):
-        """Dessine le bouton avec un changement de couleur si survolé."""
-        # 1. Choisir la couleur de fond (utilise les variables de Settings.py)
+        # Si survolé, on décale un peu le bouton vers la droite (effet de mouvement)
+        offset = 10 if self.hovered else 0
+        draw_rect = self.rect.copy()
+        draw_rect.x += offset 
         color = COLOR_BTN_HOVER if self.hovered else COLOR_BTN
-        # 2. Dessiner le rectangle principal (arrondi pour un look moderne)
-        pygame.draw.rect(surface, color, self.rect, border_radius=12)
-        # 3. Dessiner la bordure (plus brillante si survolée)
-        border_col = COLOR_ACCENT if self.hovered else (80, 80, 80)
-        pygame.draw.rect(surface, border_col, self.rect, 2, border_radius=12)
-        # 4. Préparer et centrer le texte
+        pygame.draw.rect(surface, color, draw_rect, border_radius=12)
+        # Ajout d'une petite barre lumineuse sur le côté gauche si survolé
+        if self.hovered:
+            pygame.draw.rect(surface, COLOR_ACCENT, (draw_rect.x, draw_rect.y, 5, draw_rect.height), border_radius=12)
         text_surf = self.font.render(self.text, True, COLOR_TEXT)
-        text_rect = text_surf.get_rect(center=self.rect.center)
-        # 5. Afficher le texte sur le bouton
+        text_rect = text_surf.get_rect(center=draw_rect.center)
         surface.blit(text_surf, text_rect)
 
     def handle_click(self):

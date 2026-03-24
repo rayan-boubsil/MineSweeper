@@ -29,3 +29,9 @@ DIFFICULTIES = {
         "cell_size": 25
     }
 }
+# --- Configuration des Titres ---
+TITLE_FONT_SIZE = 70
+TITLE_Y_POS = 80          # Hauteur par rapport au haut de l'écran
+TITLE_X_OFFSET = -105      # Décalage vers la droite (ton style asymétrique)
+# Chemin vers tes polices spéciales
+FONT_CUSTOM = "fonts/Digital-7/digital-7.ttf"

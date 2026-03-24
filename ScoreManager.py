@@ -3,7 +3,6 @@ import os
 
 class ScoreManager:
     """Gère l'enregistrement et le chargement des meilleurs scores en JSON."""
-    
     def __init__(self, filename="scores.json"):
         self.filename = filename
         # On charge les scores dès l'initialisation
