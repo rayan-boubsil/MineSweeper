@@ -2,7 +2,9 @@
 ```markdown
 # 🚩 Minesweeper - Matrix Edition
 
-Un jeu de Démineur moderne développé en **Python** avec la bibliothèque **Pygame**. Cette version propose une esthétique "Terminal/Matrix" et une architecture découplée (MVC) pour une performance et une lisibilité optimales.
+Un jeu de Démineur moderne développé en **Python** avec la bibliothèque **Pygame**.
+Cette version propose une esthétique "Terminal/Matrix" et une architecture découplée (MVC)
+pour une performance et une lisibilité optimales.
 
 ## 🚀 Fonctionnalités
 
