@@ -1,0 +1,69 @@
+{
+    "EASY": {
+        "history": [
+            {
+                "name": "TEST (LOST)",
+                "time": 1
+            },
+            {
+                "name": "TEST (LOST)",
+                "time": 0
+            },
+            {
+                "name": "TEST (LOST)",
+                "time": 2
+            },
+            {
+                "name": "TEST (LOST)",
+                "time": 0
+            },
+            {
+                "name": "TEST (LOST)",
+                "time": 2
+            }
+        ],
+        "best": null
+    },
+    "MEDIUM": {
+        "history": [
+            {
+                "name": "TEST (LOST)",
+                "time": 0
+            },
+            {
+                "name": "TEST (LOST)",
+                "time": 19
+            },
+            {
+                "name": "TEST (LOST)",
+                "time": 3
+            },
+            {
+                "name": "TEST (LOST)",
+                "time": 2
+            },
+            {
+                "name": "TEST (LOST)",
+                "time": 6
+            }
+        ],
+        "best": null
+    },
+    "HARD": {
+        "history": [
+            {
+                "name": "TEST (LOST)",
+                "time": 4
+            },
+            {
+                "name": "TEST (LOST)",
+                "time": 1
+            },
+            {
+                "name": "TEST (LOST)",
+                "time": 2
+            }
+        ],
+        "best": null
+    }
+}
